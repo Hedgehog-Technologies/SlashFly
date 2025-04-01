@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "slashfly",
+  "version": "${version}",
+  "name": "SlashFly",
+  "description": "Add a /fly command to singleplayer",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/slashfly/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "org.HedgeTech.slashfly.client.SlashFlyClient"
+    ],
+    "main": [
+      "org.HedgeTech.slashfly.SlashFly"
+    ]
+  },
+  "mixins": [
+    "slashfly.mixins.json",
+    {
+      "config": "slashfly.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
