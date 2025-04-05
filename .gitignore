@@ -29,6 +29,6 @@ replay_pid*
 # IntelliJ Idea
 .idea
 
-# build
-
+# build / run
 build
+run

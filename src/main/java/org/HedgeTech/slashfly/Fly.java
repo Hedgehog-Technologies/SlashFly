@@ -13,7 +13,9 @@ public class Fly {
                 .then(CommandManager.argument("speed", FloatArgumentType.floatArg(0.1f, 100.0f))
                         .executes(context ->
                             setFlySpeed(context.getSource(), FloatArgumentType.getFloat(context, "speed"))
-                        )));
+                        )
+                )
+        );
     }
 
     private static int toggleFly(ServerCommandSource source) {
@@ -28,13 +30,13 @@ public class Fly {
                 playerAbilities.flying = false;
                 playerAbilities.allowFlying = false;
 
-                source.sendFeedback(() -> Text.literal("S: Flying disabled!"), false);
+                source.sendFeedback(() -> Text.literal("Flying disabled!"), false);
             } else {
                 // Enable flying
                 playerAbilities.flying = true;
                 playerAbilities.allowFlying = true;
 
-                source.sendFeedback(() -> Text.literal("S: Flying enabled!"), false);
+                source.sendFeedback(() -> Text.literal("Flying enabled!"), false);
             }
 
             player.sendAbilitiesUpdate();
