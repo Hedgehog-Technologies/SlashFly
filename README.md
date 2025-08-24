@@ -1,6 +1,13 @@
 # SlashFly
 
-A Fabric plugin that adds a `/fly` command set to single player minecraft.
+A Minecraft mod that adds a simple `/fly` command set to singleplayer and multiplayer.
+
+## Key Features
+### 1.0.0
+- Initial Release
+- `/fly` command set added
+  - Flight toggle persists between logins and deaths
+- Allow normal block breaking speed when flying
 
 ## Usage
 
@@ -10,5 +17,11 @@ A Fabric plugin that adds a `/fly` command set to single player minecraft.
 ```
 
 ## Dependencies
-- Minecraft: `1.21.4`
-- Fabric: `0.16.10`
+- Minecraft: `1.21.8`
+
+### Mod Loader
+- Fabric: `0.17.2` 
+OR
+- Forge: `58.0.8`
+OR
+- NeoForge: `21.8.36`
