@@ -17,11 +17,11 @@ A Minecraft mod that adds a simple `/fly` command set to singleplayer and multip
 ```
 
 ## Dependencies
-- Minecraft: `1.21.8`
+- Minecraft: `1.21.10`
 
 ### Mod Loader
-- Fabric: `0.17.2` 
+- Fabric: `0.17.3`
 OR
-- Forge: `58.0.8`
+- Forge: `60.0.12`
 OR
-- NeoForge: `21.8.36`
+- NeoForge: `21.10.38-beta`
