@@ -40,12 +40,14 @@ public class NeoForgeSlashFly {
     }
 
     private static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
-        Fly.savePlayer(event.getEntity());
+        //noinspection resource
+        Fly.savePlayer(event.getEntity(), event.getEntity().level().getServer());
     }
 
     private static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer sPlayer) {
-            Fly.initPlayer(sPlayer);
+            //noinspection resource
+            Fly.initPlayer(sPlayer, event.getEntity().level().getServer());
         }
     }
 

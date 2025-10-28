@@ -35,12 +35,14 @@ public class ForgeSlashFly {
     }
 
     private static void playerLoggedOutEventHandler(PlayerEvent.PlayerLoggedOutEvent event) {
-        Fly.savePlayer(event.getEntity());
+        //noinspection resource
+        Fly.savePlayer(event.getEntity(), event.getEntity().level().getServer());
     }
 
     private static void playerLoggedInEventHandler(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            Fly.initPlayer(serverPlayer);
+            //noinspection resource
+            Fly.initPlayer(serverPlayer, serverPlayer.level().getServer());
         }
     }
 

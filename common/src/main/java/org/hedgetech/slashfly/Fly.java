@@ -2,13 +2,14 @@ package org.hedgetech.slashfly;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.hedgetech.slashfly.saveddata.PlayerSavedData;
 
 public class Fly {
-    public static void initPlayer(ServerPlayer player) {
-        var savedData = PlayerSavedData.ofServer(player.getServer());
+    public static void initPlayer(ServerPlayer player, MinecraftServer server) {
+        var savedData = PlayerSavedData.ofServer(server);
         var playerData = savedData.getPlayerData(player.getStringUUID());
 
         var playerAbilities = player.getAbilities();
@@ -22,14 +23,15 @@ public class Fly {
         }
     }
 
-    public static void savePlayer(Player player) {
-        var savedData = PlayerSavedData.ofServer(player.getServer());
+    public static void savePlayer(Player player, MinecraftServer server) {
+        var savedData = PlayerSavedData.ofServer(server);
         var playerData = savedData.getPlayerData(player.getStringUUID());
         savedData.togglePlayerFlight(player, playerData.getMayFly());
     }
 
     public static void onPlayerRespawn(String uuidString, Player player) {
-        var savedData = PlayerSavedData.ofServer(player.getServer());
+        //noinspection resource
+        var savedData = PlayerSavedData.ofServer(player.level().getServer());
         var playerData = savedData.getPlayerData(uuidString);
 
         savedData.togglePlayerFlight(player, playerData.getMayFly());
@@ -40,7 +42,7 @@ public class Fly {
         var player = source.getPlayer();
         assert player != null;
 
-        var savedData = PlayerSavedData.ofServer(player.getServer());
+        var savedData = PlayerSavedData.ofServer(source.getServer());
         if (savedData.togglePlayerFlight(player)) {
             source.sendSuccess(() -> Component.literal("Flying enabled!"), false);
         } else {
@@ -54,7 +56,7 @@ public class Fly {
         var player = source.getPlayer();
         assert player != null;
 
-        var savedData = PlayerSavedData.ofServer(player.getServer());
+        var savedData = PlayerSavedData.ofServer(source.getServer());
         savedData.setPlayerFlightSpeed(player, speed);
         source.sendSuccess(() -> Component.literal("Flying speed set to " + speed + "!"), false);
 

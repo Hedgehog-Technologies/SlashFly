@@ -27,11 +27,11 @@ public class FabricSlashFly implements ModInitializer {
         );
 
         ServerPlayConnectionEvents.DISCONNECT.register((serverPlayNetworkHandler, minecraftServer) ->
-                Fly.savePlayer(serverPlayNetworkHandler.getPlayer())
+                Fly.savePlayer(serverPlayNetworkHandler.getPlayer(), minecraftServer)
         );
 
         ServerPlayConnectionEvents.JOIN.register((serverPlayNetworkHandler, packetSender, minecraftServer) ->
-                Fly.initPlayer(serverPlayNetworkHandler.getPlayer())
+                Fly.initPlayer(serverPlayNetworkHandler.getPlayer(), minecraftServer)
         );
 
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) ->
