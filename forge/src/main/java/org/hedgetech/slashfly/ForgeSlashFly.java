@@ -1,10 +1,15 @@
 package org.hedgetech.slashfly;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.hedgetech.slashfly.commands.CommandRegistry;
+
+import java.util.Objects;
 
 /**
  * SlashFly's Forge Entry Point
@@ -52,12 +57,17 @@ public class ForgeSlashFly {
     }
 
     private static void playerBreakSpeedEventHandler(PlayerEvent.BreakSpeed event) {
-        var player = event.getEntity();
+        Player player = event.getEntity();
         var abilities = player.getAbilities();
         var onGround = player.onGround();
+        var inWater = player.isEyeInFluidType(ForgeMod.WATER_TYPE.get());
 
         if (!onGround && abilities.flying) {
-            event.setNewSpeed(event.getOriginalSpeed() * 5.0f);
+            event.setNewSpeed(event.getNewSpeed() * 5.0f);
+        }
+
+        if (inWater && abilities.flying) {
+            event.setNewSpeed(event.getNewSpeed() / (float) Objects.requireNonNull(player.getAttribute(Attributes.SUBMERGED_MINING_SPEED)).getValue());
         }
     }
 }

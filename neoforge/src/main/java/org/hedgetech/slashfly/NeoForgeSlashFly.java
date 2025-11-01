@@ -2,12 +2,16 @@ package org.hedgetech.slashfly;
 
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.hedgetech.slashfly.commands.CommandRegistry;
+
+import java.util.Objects;
 
 /**
  * SlashFly's NeoForge Entry Point
@@ -60,9 +64,14 @@ public class NeoForgeSlashFly {
         var player = event.getEntity();
         var abilities = player.getAbilities();
         var onGround = player.onGround();
+        var inWater = player.isEyeInFluidType(NeoForgeMod.WATER_TYPE.value());
 
         if (!onGround && abilities.flying) {
-            event.setNewSpeed(event.getOriginalSpeed() * 5.0f);
+            event.setNewSpeed(event.getNewSpeed() * 5.0f);
+        }
+
+        if (inWater && abilities.flying) {
+            event.setNewSpeed(event.getNewSpeed() / (float) Objects.requireNonNull(player.getAttribute(Attributes.SUBMERGED_MINING_SPEED)).getValue());
         }
     }
 }

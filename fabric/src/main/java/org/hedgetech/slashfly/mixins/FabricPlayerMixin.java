@@ -18,7 +18,6 @@ public abstract class FabricPlayerMixin {
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;onGround()Z")
     )
     private boolean allowNormalBreakWhileFlying(boolean original) {
-        var player = (Player) (Object) this;
         var abilities = getAbilities();
 
         if (abilities.flying && !original) {
@@ -26,5 +25,15 @@ public abstract class FabricPlayerMixin {
         }
 
         return original;
+    }
+
+    @ModifyExpressionValue(
+            method = "getDestroySpeed",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;isEyeInFluid(Lnet/minecraft/tags/TagKey;)Z")
+    )
+    private boolean allowNormalBreakWhileSwimming(boolean original) {
+        var abilities = getAbilities();
+
+        return !abilities.flying || !original;
     }
 }
