@@ -34,6 +34,10 @@ public abstract class FabricPlayerMixin {
     private boolean allowNormalBreakWhileSwimming(boolean original) {
         var abilities = getAbilities();
 
-        return !abilities.flying || !original;
+        if (abilities.flying && original) {
+            return false;
+        }
+
+        return original;
     }
 }
