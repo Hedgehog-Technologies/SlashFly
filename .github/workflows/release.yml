@@ -45,7 +45,7 @@ jobs:
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
 
       - name: Build (assemble jars)
-        run: ./gradlew --no-daemon assemble
+        run: bash ./gradlew --no-daemon assemble
 
       - name: Collect jars
         id: gather
