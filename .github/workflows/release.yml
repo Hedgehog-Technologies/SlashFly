@@ -115,11 +115,24 @@ jobs:
           name: jars
           path: ./downloaded-jars
 
+      - name: Locate downloaded jar
+        id: locate
+        run: |
+          echo "Listing `./downloaded-jars`:"
+          ls -laR ./downloaded-jars || true
+          p=$(find ./downloaded-jars -type f -name "${{ matrix.artifact }}" -print -quit || true)
+          if [ -z "$p" ]; then
+            echo "ERROR: could not find `./downloaded-jars/${{ matrix.artifact }}`" >&2
+            exit 1
+          fi
+          echo "Found: $p"
+          echo "subject_path=$p" >> $GITHUB_OUTPUT
+
       - name: Attest artifact
         id: attest
         uses: actions/attest-build-provenance@v2
         with:
-          subject-path: ./downloaded-jars/jars/release_artifacts/${{ matrix.artifact }}
+          subject-path: ${{ steps.locate.outputs.subject_path }}
           push-to-registry: false
           show-summary: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
