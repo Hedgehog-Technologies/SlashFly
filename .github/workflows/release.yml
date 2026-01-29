@@ -20,7 +20,11 @@ jobs:
         id: meta
         run: |
           # get full tag name (preserve any '/' in the tag)
-          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          full_tag=${GITHUB_REF#refs/tags/}
+          echo "tag=$full_tag" >> $GITHUB_OUTPUT
+          # extract mod version (the part after the '/')
+          mod=${full_tag##*/}
+          echo "mod=$mod" >> $GITHUB_OUTPUT
           # ensure remote branches are available
           git fetch origin 'refs/heads/*:refs/remotes/origin/*' || true
           # find remote branches that contain the tagged commit
@@ -93,8 +97,9 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
+          name: SlashFly @ v${{ steps.meta.outputs.mod }} (MC ${{ steps.meta.outputs.branch }})
           body: |
-            Release ${{ github.ref_name }} from branch ${{ steps.meta.outputs.branch }}
+            Release v${{ steps.meta.outputs.mod }} from branch ${{ steps.meta.outputs.branch }}
           files: release_artifacts/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
