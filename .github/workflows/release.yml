@@ -141,10 +141,28 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Record attestation link
+        shell: bash
         run: |
           mkdir -p attestations
-          # assume the attestation action exposes an output 'attestation_url' (adjust to real output name if different)
-          echo "${{ matrix.artifact }} ${{ steps.attest.outputs.attestation_url }}" > "attestations/${{ matrix.artifact }}.attestation.txt"
+
+          # try common output names (expanded at runtime)
+          url="${{ steps.attest.outputs.attestation_url }}"
+          if [ -z "$url" ]; then url="${{ steps.attest.outputs.attestation_ref }}"; fi
+          if [ -z "$url" ]; then url="${{ steps.attest.outputs.attestation_uri }}"; fi
+          if [ -z "$url" ]; then url="${{ steps.attest.outputs.provenance_uri }}"; fi
+          if [ -z "$url" ]; then url="${{ steps.attest.outputs.uri }}"; fi
+
+          if [ -n "$url" ]; then
+            echo "${{ matrix.artifact }} $url" > attestations/${{ matrix.artifact }}.attestation.txt
+          else
+            # fallback: write an artifact line plus a debug dump of all attestation step outputs
+            echo "${{ matrix.artifact }} " > attestations/${{ matrix.artifact }}.attestation.txt
+            echo "" >> attestations/${{ matrix.artifact }}.attestation.txt
+            echo "DEBUG: attestation step outputs:" >> attestations/${{ matrix.artifact }}.attestation.txt
+            echo "${{ toJson(steps.attest.outputs) }}" >> attestations/${{ matrix.artifact }}.attestation.txt
+          fi
+
+          echo "Wrote attestations/${{ matrix.artifact }}.attestation.txt"
 
       - name: Upload attestations record
         uses: actions/upload-artifact@v4
