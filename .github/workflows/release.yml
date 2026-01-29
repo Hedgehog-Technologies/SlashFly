@@ -8,8 +8,10 @@ on:
 
 jobs:
   build-and-release:
-    name: Build and create tagged release
+    name: Build and prepare artifacts
     runs-on: ubuntu-latest
+    outputs:
+      files_json: ${{ steps.gather.outputs.files_json }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,17 +21,12 @@ jobs:
       - name: Determine tag and containing branch
         id: meta
         run: |
-          # get full tag name (preserve any '/' in the tag)
           full_tag=${GITHUB_REF#refs/tags/}
           echo "tag=$full_tag" >> $GITHUB_OUTPUT
-          # extract mod version (the part after the '/')
           mod=${full_tag##*/}
           echo "mod=$mod" >> $GITHUB_OUTPUT
-          # ensure remote branches are available
           git fetch origin 'refs/heads/*:refs/remotes/origin/*' || true
-          # find remote branches that contain the tagged commit
           branches=$(git branch -r --contains $GITHUB_SHA 2>/dev/null || true)
-          # normalize and pick the first branch (strip remote prefix)
           branch=$(echo "$branches" | sed 's#^[[:space:]]*##' | sed 's#^origin/##' | head -n1 || true)
           if [ -z "$branch" ]; then branch="unknown"; fi
           echo "branch=$branch" >> $GITHUB_OUTPUT
@@ -38,7 +35,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: 21
 
       - name: Cache gradle
         uses: actions/cache@v4
@@ -61,7 +58,6 @@ jobs:
             if [ $attempt -eq 1 ]; then
               bash ./gradlew --no-daemon assemble
             else
-              # on retries, force refresh to avoid cached partial failures
               bash ./gradlew --no-daemon assemble --refresh-dependencies
             fi
             rc=$?
@@ -82,24 +78,111 @@ jobs:
         id: gather
         run: |
           mkdir -p release_artifacts
-          # copy produced jars from subprojects
           find . -path '*/build/libs/*.jar' \
             ! -name '*-sources.jar' \
             ! -name '*-javadoc.jar' \
             ! -name '*-common-*.jar' \
             ! -name 'buildSrc.jar' -print0 | xargs -0 -I{} cp {} release_artifacts/ || true
           ls -la release_artifacts
-          # produce a space-separated list for outputs (optional)
-          files="$(cd release_artifacts && printf '%s ' *.jar 2>/dev/null || true)"
-          echo "files=$files" >> $GITHUB_OUTPUT
+          # product JSON array of filenames for matrix usage
+          files_json=$(cd release_artifacts && python3 - <<'PY'
+            import json,glob,sys
+            files = sorted(glob.glob("*.jar"))
+            print(json.dumps(files))
+            PY
+          )
+          echos "files_json=$files_json" >> $GITHUB_OUTPUT
+
+      - name: Upload jars artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: jars
+          path: release_artifacts
+
+  attest:
+    name: Attest collected jars
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        artifact: ${{ fromJson(needs.build-and-release.outputs.files_json) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download jars artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: jars
+          path: ./downloaded-jars
+
+      - name: Attest artifact
+        id: attest
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ./downloaded_jars/release_artifacts/${{ matrix.artifact }}
+
+      - name: Record attestation link
+        run: |
+          mkdir -p attestations
+          # assume the attestation action exposes an output 'attestation_url' (adjust to real output name if different)
+          echo "${{ matrix.artifact }} ${{ steps.attest.outputs.attestation_url }}" > "attestations/${{ matrix.artifact }}.attestation.txt"
+
+      - name: Upload attestations record
+        uses: actions/upload-artifact@v3
+        with:
+          name: attestations
+          path: attestations
+
+  create-release:
+    name: Create GitHub release and upload jars + attestation links
+    needs: [build-and-release, attest]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download jars
+        uses: actions/download-artifact@v3
+        with:
+          name: jars
+          path: ./release_artifacts
+
+      - name: Download attestations (all)
+        uses: actions/download-artifact@v3
+        with:
+          name: attestations
+          path: ./attestations || true
+
+      - name: Build release body with attestations
+        id: body
+        run: |
+          # compose attestation links list (one per line)
+          if [ -d attestations ]; then
+            # cat all attestation files that were uploaded by the attest matrix
+            printf '%s\n' "Attestations:" > release_body.txt
+            for f in attestations/*.attestation.txt; do
+              [ -f "$f" ] || continue
+              printf '%s\n' "- %s\n" "$(basename "$f" .attestation.txt)" "$(cat "$f" | cut -d' ' -f2-)" >> release_body.txt
+            done
+          else
+            printf '%s\n' "No attestations found." > release_body.txt
+          fi
+          # append original short release line
+          echo "" >> release_body.txt
+          echo "Release v${{ needs.build-and-release.outputs.mod }} from branch ${{ needs.build-and-release.outputs.branch }}" >> release_body.txt || true
+          RELEASE_BODY=$(cat release_body.txt)
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$RELEASE_BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub release and upload jars
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
-          name: SlashFly @ v${{ steps.meta.outputs.mod }} (MC ${{ steps.meta.outputs.branch }})
-          body: |
-            Release v${{ steps.meta.outputs.mod }} from branch ${{ steps.meta.outputs.branch }}
-          files: release_artifacts/*.jar
+          name: SlashFly @ v${{ needs.build-and-release.outputs.mod }} (MC ${{ needs.build-and-release.outputs.branch }})
+          body: ${{ steps.body.outputs.body }}
+          files: release_artifacts/release_artifacts/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
