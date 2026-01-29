@@ -98,6 +98,9 @@ jobs:
     name: Attest collected jars
     needs: build-and-release
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -116,7 +119,10 @@ jobs:
         id: attest
         uses: actions/attest-build-provenance@v2
         with:
-          subject-path: ./downloaded_jars/release_artifacts/${{ matrix.artifact }}
+          subject-path: ./downloaded-jars/release_artifacts/${{ matrix.artifact }}
+          push-to-registry: false
+          show-summary: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Record attestation link
         run: |
