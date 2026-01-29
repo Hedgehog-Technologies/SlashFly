@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       files_json: ${{ steps.gather.outputs.files_json }}
+      mod: ${{ steps.meta.outputs.mod }}
+      branch: ${{ steps.meta.outputs.branch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -197,6 +199,6 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: SlashFly @ v${{ needs.build-and-release.outputs.mod }} (MC ${{ needs.build-and-release.outputs.branch }})
           body: ${{ steps.body.outputs.body }}
-          files: release_artifacts/release_artifacts/*.jar
+          files: release_artifacts/**/release_artifacts/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
