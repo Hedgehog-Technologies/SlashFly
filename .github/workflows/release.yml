@@ -168,10 +168,16 @@ jobs:
           name: jars
           path: ./release_artifacts
 
+      - name: Flatten downloaded jars
+        run: |
+          mkdir -p release_artifacts_flat
+          find release_artifacts -type f -name '*.jar' -print0 | xargs -0 -I{} cp {} release_artifacts_flat/ || true
+          ls -la release_artifacts_flat
+
       - name: Download attestations (all)
         uses: actions/download-artifact@v4
         with:
-          path: ./attestations || true
+          path: ./attestations
 
       - name: Build release body with attestations
         id: body
@@ -181,13 +187,13 @@ jobs:
             find attestations -type f -name '*.attestation.txt' -print0 | while IFS= read -r -d '' f; do
               base=$(basename "$f" .attestation.txt)
               url=$(cat "$f" | cut -d' ' -f2-)
-              printf '%s\n' "- %s\n" "$base" "$url" >> release_body.txt
+              printf '%s\n' "- %s %s" "$base" "$url" >> release_body.txt
             done
           else
             printf '%s\n' "No attestations found." > release_body.txt
           fi
           echo "" >> release_body.txt
-          echo "Release v${{ needs.build-and-release.outputs.mod }} from branch ${{ needs.build-and-release.outputs.branch }}" >> release_body.txt || true
+          echo "Release v${{ needs.build-and-release.outputs.mod }} from branch ${{ needs.build-and-release.outputs.branch }}" >> release_body.txt
           RELEASE_BODY=$(cat release_body.txt)
           echo "body<<EOF" >> $GITHUB_OUTPUT
           echo "$RELEASE_BODY" >> $GITHUB_OUTPUT
@@ -199,6 +205,6 @@ jobs:
           tag_name: ${{ github.ref_name }}
           name: SlashFly @ v${{ needs.build-and-release.outputs.mod }} (MC ${{ needs.build-and-release.outputs.branch }})
           body: ${{ steps.body.outputs.body }}
-          files: release_artifacts/**/release_artifacts/*.jar
+          files: release_artifacts_flat/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
