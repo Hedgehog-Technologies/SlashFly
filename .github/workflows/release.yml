@@ -119,7 +119,7 @@ jobs:
         id: attest
         uses: actions/attest-build-provenance@v2
         with:
-          subject-path: ./downloaded-jars/release_artifacts/${{ matrix.artifact }}
+          subject-path: ./downloaded-jars/jars/release_artifacts/${{ matrix.artifact }}
           push-to-registry: false
           show-summary: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
