@@ -45,7 +45,34 @@ jobs:
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle', '**/gradle-wrapper.properties') }}
 
       - name: Build (assemble jars)
-        run: bash ./gradlew --no-daemon assemble
+        shell: bash
+        env:
+          GRADLE_OPTS: "-Dsun.net.client.defaultConnectTimeout=600000 -Dsun.net.client.defaultReadTimeout=600000"
+        run: |
+          retries=3
+          attempt=1
+          until [ $attempt -gt $retries ]
+          do
+            echo "Attempt $attempt/$retries"
+            if [ $attempt -eq 1 ]; then
+              bash ./gradlew --no-daemon assemble
+            else
+              # on retries, force refresh to avoid cached partial failures
+              bash ./gradlew --no-daemon assemble --refresh-dependencies
+            fi
+            rc=$?
+            if [ $rc -eq 0 ]; then
+              echo "Build succeeded on attempt $attempt"
+              break
+            fi
+            echo "Build failed (exit $rc). Sleeping before retry..."
+            sleep $((attempt * 10))
+            attempt=$((attempt + 1))
+          done
+          if [ $rc -ne 0 ]; then
+            echo "Build failed after $retries attempts; run with --stacktrace locally or check runner network access."
+            exit $rc
+          fi
 
       - name: Collect jars
         id: gather
