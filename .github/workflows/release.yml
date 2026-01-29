@@ -79,7 +79,11 @@ jobs:
         run: |
           mkdir -p release_artifacts
           # copy produced jars from subprojects
-          find . -path '*/build/libs/*.jar' ! -name '*-sources.jar' ! -name '*-javadoc.jar' -print0 | xargs -0 -I{} cp {} release_artifacts/ || true
+          find . -path '*/build/libs/*.jar' \
+            ! -name '*-sources.jar' \
+            ! -name '*-javadoc.jar' \
+            ! -name '*-common-*.jar' \
+            ! -name 'buildSrc.jar' -print0 | xargs -0 -I{} cp {} release_artifacts/ || true
           ls -la release_artifacts
           # produce a space-separated list for outputs (optional)
           files="$(cd release_artifacts && printf '%s ' *.jar 2>/dev/null || true)"
