@@ -145,22 +145,15 @@ jobs:
         run: |
           mkdir -p attestations
 
-          # try common output names (expanded at runtime)
-          url="${{ steps.attest.outputs.attestation_url }}"
+          # try common output names (including hyphenated key)
+          url="${{ steps.attest.outputs['attestation-url'] }}"
+          if [ -z "$url" ]; then url="${{ steps.attest.outputs.attestation_url }}"; fi
           if [ -z "$url" ]; then url="${{ steps.attest.outputs.attestation_ref }}"; fi
           if [ -z "$url" ]; then url="${{ steps.attest.outputs.attestation_uri }}"; fi
-          if [ -z "$url" ]; then url="${{ steps.attest.outputs.provenance_uri }}"; fi
           if [ -z "$url" ]; then url="${{ steps.attest.outputs.uri }}"; fi
 
-          if [ -n "$url" ]; then
-            echo "${{ matrix.artifact }} $url" > attestations/${{ matrix.artifact }}.attestation.txt
-          else
-            # fallback: write an artifact line plus a debug dump of all attestation step outputs
-            echo "${{ matrix.artifact }} " > attestations/${{ matrix.artifact }}.attestation.txt
-            echo "" >> attestations/${{ matrix.artifact }}.attestation.txt
-            echo "DEBUG: attestation step outputs:" >> attestations/${{ matrix.artifact }}.attestation.txt
-            echo "${{ toJson(steps.attest.outputs) }}" >> attestations/${{ matrix.artifact }}.attestation.txt
-          fi
+          # write only "artifact URL" (URL may be empty)
+          echo "${{ matrix.artifact }} $url" > attestations/${{ matrix.artifact }}.attestation.txt
 
           echo "Wrote attestations/${{ matrix.artifact }}.attestation.txt"
 
@@ -202,11 +195,14 @@ jobs:
         run: |
           if [ -d attestations ]; then
             printf '%s\n' "Attestations:" > release_body.txt
-              find attestations -type f -name '*.attestation.txt' -print0 | while IFS= read -r -d '' f; do
+            find attestations -type f -name '*.attestation.txt' -print0 | while IFS= read -r -d '' f; do
               base=$(basename "$f" .attestation.txt)
               url=$(cut -d' ' -f2- < "$f")
-              # avoid a format string that begins with `-` — pass the full line as an argument
-              printf '%s\n' "- $base $url" >> release_body.txt
+              if [ -n "$url" ]; then
+                printf '%s\n' "- [$base]($url)" >> release_body.txt
+              else
+                printf '%s\n' "- $base" >> release_body.txt
+              fi
             done
           else
             printf '%s\n' "No attestations found." > release_body.txt
