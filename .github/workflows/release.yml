@@ -147,8 +147,10 @@ jobs:
       - name: Upload attestations record
         uses: actions/upload-artifact@v4
         with:
-          name: attestations
-          path: attestations
+          name: attestations-${{ matrix.artifact }}
+          path: attestations/${{ matrix.artifact }}.attestation.txt
+          if-no-files-found: warn
+          overwrite: true
 
   create-release:
     name: Create GitHub release and upload jars + attestation links
@@ -167,24 +169,21 @@ jobs:
       - name: Download attestations (all)
         uses: actions/download-artifact@v4
         with:
-          name: attestations
           path: ./attestations || true
 
       - name: Build release body with attestations
         id: body
         run: |
-          # compose attestation links list (one per line)
           if [ -d attestations ]; then
-            # cat all attestation files that were uploaded by the attest matrix
             printf '%s\n' "Attestations:" > release_body.txt
-            for f in attestations/*.attestation.txt; do
-              [ -f "$f" ] || continue
-              printf '%s\n' "- %s\n" "$(basename "$f" .attestation.txt)" "$(cat "$f" | cut -d' ' -f2-)" >> release_body.txt
+            find attestations -type f -name '*.attestation.txt' -print0 | while IFS= read -r -d '' f; do
+              base=$(basename "$f" .attestation.txt)
+              url=$(cat "$f" | cut -d' ' -f2-)
+              printf '%s\n' "- %s\n" "$base" "$url" >> release_body.txt
             done
           else
             printf '%s\n' "No attestations found." > release_body.txt
           fi
-          # append original short release line
           echo "" >> release_body.txt
           echo "Release v${{ needs.build-and-release.outputs.mod }} from branch ${{ needs.build-and-release.outputs.branch }}" >> release_body.txt || true
           RELEASE_BODY=$(cat release_body.txt)
