@@ -193,11 +193,11 @@ jobs:
       - name: Build release body with attestations
         id: body
         run: |
-          echo "Release v${{ needs.build-and-release.outputs.mod }} from branch ${{ needs.build-and-release.outputs.branch }}" >> release_body.txt
+          echo "Release v${{ needs.build-and-release.outputs.mod }} from branch ${{ needs.build-and-release.outputs.branch }}" > release_body.txt
           echo "" >> release_body.txt
 
           if [ -d attestations ]; then
-            printf '%s\n' "Attestations:" > release_body.txt
+            printf '%s\n' "Attestations:" >> release_body.txt
             find attestations -type f -name '*.attestation.txt' -print0 | while IFS= read -r -d '' f; do
               base=$(basename "$f" .attestation.txt)
               url=$(cut -d' ' -f2- < "$f")
