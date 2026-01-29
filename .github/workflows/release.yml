@@ -184,14 +184,16 @@ jobs:
         run: |
           if [ -d attestations ]; then
             printf '%s\n' "Attestations:" > release_body.txt
-            find attestations -type f -name '*.attestation.txt' -print0 | while IFS= read -r -d '' f; do
+              find attestations -type f -name '*.attestation.txt' -print0 | while IFS= read -r -d '' f; do
               base=$(basename "$f" .attestation.txt)
               url=$(cut -d' ' -f2- < "$f")
-              printf '- %s %s\n' "$base" "$url" >> release_body.txt
+              # avoid a format string that begins with `-` — pass the full line as an argument
+              printf '%s\n' "- $base $url" >> release_body.txt
             done
           else
             printf '%s\n' "No attestations found." > release_body.txt
           fi
+
           echo "" >> release_body.txt
           echo "Release v${{ needs.build-and-release.outputs.mod }} from branch ${{ needs.build-and-release.outputs.branch }}" >> release_body.txt
           RELEASE_BODY=$(cat release_body.txt)
