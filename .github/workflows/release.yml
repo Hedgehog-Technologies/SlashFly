@@ -101,6 +101,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      attestations: write
     strategy:
       fail-fast: false
       matrix:
