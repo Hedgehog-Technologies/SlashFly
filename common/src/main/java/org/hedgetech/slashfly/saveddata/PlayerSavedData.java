@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.hedgetech.slashfly.Constants.MOD_ID;
+import static org.hedgetech.slashfly.Constants.MOD_IDENTIFIER;
 
 public class PlayerSavedData extends SavedData {
     public static final Codec<Map<String, PlayerData>> PLAYER_DATA_CODEC = Codec.unboundedMap(Codec.STRING, PlayerData.CODEC);
@@ -83,7 +84,7 @@ public class PlayerSavedData extends SavedData {
         }
     }
 
-    private static final SavedDataType<PlayerSavedData> TYPE = new SavedDataType<>(MOD_ID, PlayerSavedData::new, CODEC, null);
+    private static final SavedDataType<PlayerSavedData> TYPE = new SavedDataType<>(MOD_IDENTIFIER, PlayerSavedData::new, CODEC, null);
 
     public static PlayerSavedData ofServer(MinecraftServer server) {
         try {

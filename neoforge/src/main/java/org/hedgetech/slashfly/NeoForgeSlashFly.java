@@ -6,7 +6,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import org.hedgetech.slashfly.commands.CommandRegistry;
@@ -64,7 +63,7 @@ public class NeoForgeSlashFly {
         var player = event.getEntity();
         var abilities = player.getAbilities();
         var onGround = player.onGround();
-        var inWater = player.isEyeInFluidType(NeoForgeMod.WATER_TYPE.value());
+        var inWater = player.isUnderWater();
 
         if (!onGround && abilities.flying) {
             event.setNewSpeed(event.getNewSpeed() * 5.0f);
