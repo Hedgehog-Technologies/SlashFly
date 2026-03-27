@@ -19,11 +19,6 @@ public final class Constants {
 	public static final String MOD_NAME = "SlashFly";
 
 	/**
-	 * MOD_IDENTIFIER -
-	 */
-	public static final Identifier MOD_IDENTIFIER = Identifier.fromNamespaceAndPath(MOD_ID, MOD_NAME);
-
-	/**
 	 * Logger - To make more consistent logging instead of using stdout
 	 */
 	public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);

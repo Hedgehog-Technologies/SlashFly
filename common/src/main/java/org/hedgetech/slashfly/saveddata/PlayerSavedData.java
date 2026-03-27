@@ -2,7 +2,9 @@ package org.hedgetech.slashfly.saveddata;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.level.saveddata.SavedDataType;
@@ -13,9 +15,9 @@ import java.util.Map;
 import java.util.Objects;
 
 import static org.hedgetech.slashfly.Constants.MOD_ID;
-import static org.hedgetech.slashfly.Constants.MOD_IDENTIFIER;
 
 public class PlayerSavedData extends SavedData {
+    public static final Identifier PLAYER_SAVED_DATA_ID = Identifier.fromNamespaceAndPath(MOD_ID, "player_saved_data");
     public static final Codec<Map<String, PlayerData>> PLAYER_DATA_CODEC = Codec.unboundedMap(Codec.STRING, PlayerData.CODEC);
     public static final Codec<PlayerSavedData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             PLAYER_DATA_CODEC.fieldOf("player_data").forGetter(PlayerSavedData::getPlayerDatum)
@@ -84,7 +86,7 @@ public class PlayerSavedData extends SavedData {
         }
     }
 
-    private static final SavedDataType<PlayerSavedData> TYPE = new SavedDataType<>(MOD_IDENTIFIER, PlayerSavedData::new, CODEC, null);
+    private static final SavedDataType<PlayerSavedData> TYPE = new SavedDataType<>(PLAYER_SAVED_DATA_ID, PlayerSavedData::new, CODEC, DataFixTypes.PLAYER);
 
     public static PlayerSavedData ofServer(MinecraftServer server) {
         try {
