@@ -19,7 +19,7 @@ repositories {
 }
 
 base {
-    archivesName = "${mod_id}-forge-${minecraft_version}"
+    archivesName = "${mod_id}-forge-${minecraft_display_version}"
 }
 
 // mixin {

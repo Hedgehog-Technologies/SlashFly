@@ -1,6 +1,7 @@
 package org.hedgetech.slashfly;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.ForgeMod;
@@ -60,7 +61,7 @@ public class ForgeSlashFly {
         Player player = event.getEntity();
         var abilities = player.getAbilities();
         var onGround = player.onGround();
-        var inWater = player.isEyeInFluidType(ForgeMod.WATER_TYPE.get());
+        var inWater = player.isEyeInFluid(FluidTags.WATER);
 
         if (!onGround && abilities.flying) {
             event.setNewSpeed(event.getNewSpeed() * 5.0f);
