@@ -17,6 +17,8 @@ A Minecraft mod that adds a simple `/fly` command set to singleplayer and multip
 ```
 
 ## Release Notes
+### 1.2.0
+- Prevent losing active flying when switching game modes
 ### 1.1.1
 - Fixed **Fabric** above ground mining speed issue
 ### 1.1.0

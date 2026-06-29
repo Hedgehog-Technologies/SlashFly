@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "package": "org.hedgetech.slashfly.mixin",
+  "minVersion": "0.8",
+  "refmap": "${mod_id}.refmap.json",
+  "client": [],
+  "mixins": [
+    "ServerPlayerGameModeMixin"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
