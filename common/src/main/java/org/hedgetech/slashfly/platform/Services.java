@@ -1,6 +1,7 @@
 package org.hedgetech.slashfly.platform;
 
 import org.hedgetech.slashfly.Constants;
+import org.hedgetech.slashfly.permissions.IPermissionHelper;
 import org.hedgetech.slashfly.platform.services.IPlatformHelper;
 
 import java.util.ServiceLoader;
@@ -22,6 +23,8 @@ public class Services {
      * mod is loaded.
      **/
     public static final IPlatformHelper PLATFORM = load(IPlatformHelper.class);
+
+    public static final IPermissionHelper PERMISSIONS = load(IPermissionHelper.class);
 
     /**
      * This code is used to load a service for the current environment. Your implementation of the service must be defined
