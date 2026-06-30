@@ -18,6 +18,10 @@ repositories {
     mavenLocal()
 }
 
+dependencies {
+    compileOnly "net.luckperms:api:5.5"
+}
+
 base {
     archivesName = "${mod_id}-forge-${minecraft_display_version}"
 }

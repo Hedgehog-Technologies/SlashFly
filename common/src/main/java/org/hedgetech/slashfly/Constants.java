@@ -23,6 +23,10 @@ public final class Constants {
 	 */
 	public static final Logger LOG = LoggerFactory.getLogger(MOD_NAME);
 
+	public static final String FLY_TOGGLE_PERM = "slashfly.command.fly";
+	public static final String FLY_SPEED_PERM = "slashfly.command.fly.speed";
+	public static final String FLY_OTHERS_PERM = "slashfly.command.fly.others"; // For future use
+
 	private Constants() {
 		throw new UnsupportedOperationException("Static Utility class, no need to instantiate");
 	}
