@@ -1,6 +1,6 @@
 plugins {
     id 'multiloader-loader'
-    id 'net.minecraftforge.accesstransformers' version '5.0.3'
+//    id 'net.minecraftforge.accesstransformers' version '5.0.3'
     id 'net.minecraftforge.gradle' version '[7.0.17,8)'
     id 'net.minecraftforge.jarjar' version '0.2.3'
 //    id 'org.spongepowered.mixin' version '0.7.+'
@@ -16,6 +16,10 @@ repositories {
 
     mavenCentral()
     mavenLocal()
+}
+
+dependencies {
+    compileOnly "net.luckperms:api:5.5"
 }
 
 base {
@@ -34,16 +38,16 @@ minecraft {
 
 //    reobf = false // Forge 1.20.6+ uses official mappings at runtime, so we shouldn't reobf from official to SRG
 
-    accessTransformer = true
+//    accessTransformer = true
 
     // Automatically enable forge AccessTransformers if the file exists
     // This location is hardcoded in Forge and can not be changed.
     // https://github.com/MinecraftForge/MinecraftForge/blob/be1698bb1554f9c8fa2f58e32b9ab70bc4385e60/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModFile.java#L123
     // Forge still uses SRG names during compile time, so we cannot use the common AT's
-    def at = file('src/main/resources/META-INF/accesstransformer.cfg')
-    if (at.exists()) {
-        accessTransformer = at
-    }
+//    def at = file('src/main/resources/META-INF/accesstransformer.cfg')
+//    if (at.exists()) {
+//        accessTransformer = at
+//    }
 
     runs {
         configureEach {
@@ -83,7 +87,7 @@ sourceSets.main.resources.srcDir 'src/generated/resources'
 
 dependencies {
     implementation minecraft.dependency("net.minecraftforge:forge:${minecraft_version}-${forge_version}")
-    annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
+//    annotationProcessor("org.spongepowered:mixin:0.8.5:processor")
     annotationProcessor 'net.minecraftforge:eventbus-validator:7.0-beta.10'
 
     // Forge's hack fix
@@ -107,4 +111,12 @@ sourceSets.each {
     def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
     it.output.resourcesDir = dir
     it.java.destinationDirectory = dir
+}
+
+jar {
+    manifest {
+        attributes([
+                "MixinConfigs" : "slashfly.mixins.json"
+        ])
+    }
 }
