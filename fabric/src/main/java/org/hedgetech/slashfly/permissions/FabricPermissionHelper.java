@@ -11,7 +11,7 @@ public class FabricPermissionHelper implements IPermissionHelper {
     @Override
     public boolean hasPermission(CommandSourceStack source, String permission, PermissionLevel vanillaPermissionLevel) {
         if (Services.PLATFORM.isModLoaded("fabric-permissions-api-v0")) {
-            return Permissions.check(source, permission, vanillaPermissionLevel);
+            return Permissions.check(source, permission);
         }
 
         return source.permissions().hasPermission(new Permission.HasCommandLevel(vanillaPermissionLevel));
@@ -20,7 +20,7 @@ public class FabricPermissionHelper implements IPermissionHelper {
     @Override
     public boolean hasPermission(ServerPlayer player, String permission, PermissionLevel vanillaPermissionLevel) {
         if (Services.PLATFORM.isModLoaded("fabric-permissions-api-v0")) {
-            return Permissions.check(player, permission, vanillaPermissionLevel);
+            return Permissions.check(player, permission);
         }
 
         return player.permissions().hasPermission(new Permission.HasCommandLevel(vanillaPermissionLevel));
