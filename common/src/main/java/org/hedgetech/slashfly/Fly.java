@@ -5,12 +5,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
 import org.hedgetech.slashfly.saveddata.PlayerSavedData;
 
 public class Fly {
     public static void initPlayer(ServerPlayer player, MinecraftServer server) {
         var savedData = PlayerSavedData.ofServer(server);
         var playerData = savedData.getPlayerData(player.getStringUUID());
+        var playerGameMode = player.gameMode();
+
+        if (playerGameMode == GameType.CREATIVE || playerGameMode == GameType.SPECTATOR) {
+            playerData.setMayFly(true);
+        }
 
         var playerAbilities = player.getAbilities();
         playerAbilities.mayfly = playerData.getMayFly();
@@ -33,6 +39,11 @@ public class Fly {
         //noinspection resource
         var savedData = PlayerSavedData.ofServer(player.level().getServer());
         var playerData = savedData.getPlayerData(uuidString);
+        var playerGameMode = player.gameMode();
+
+        if (playerGameMode == GameType.CREATIVE || playerGameMode == GameType.SPECTATOR) {
+            playerData.setMayFly(true);
+        }
 
         savedData.togglePlayerFlight(player, playerData.getMayFly());
         savedData.setPlayerFlightSpeed(player, playerData.getFlightSpeed() * 10.0f);
