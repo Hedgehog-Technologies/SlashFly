@@ -2,8 +2,9 @@ package org.hedgetech.slashfly.data;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.world.entity.player.Player;
 
-public class  PlayerData {
+public class PlayerData {
     public static final Codec<PlayerData> CODEC;
 
     private boolean mayFly;
@@ -20,6 +21,13 @@ public class  PlayerData {
         this.mayFly = mayFly;
         this.isFlying = isFlying;
         this.flightSpeed = speed;
+    }
+
+    public PlayerData(Player player) {
+        var playerAbilities = player.getAbilities();
+        this.mayFly = playerAbilities.mayfly;
+        this.isFlying = playerAbilities.flying;
+        this.flightSpeed = playerAbilities.getFlyingSpeed();
     }
 
     public boolean getIsFlying() { return this.isFlying; }

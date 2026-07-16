@@ -34,6 +34,10 @@ public class PlayerSavedData extends SavedData {
 
     public Map<String, PlayerData> getPlayerDatum() { return this.playerDatum; }
 
+    public PlayerData getPlayerData(Player player) {
+        return this.playerDatum.computeIfAbsent(player.getStringUUID(), playerUUID -> new PlayerData(player));
+    }
+
     public PlayerData getPlayerData(String uuidString) {
         return this.playerDatum.computeIfAbsent(uuidString, playerUUID -> new PlayerData());
     }
@@ -82,6 +86,16 @@ public class PlayerSavedData extends SavedData {
             player.onUpdateAbilities();
 
             playerData.setFlightSpeed(normalizedSpeed);
+            setDirty();
+        }
+    }
+
+    public void updatePlayerAbilities(Player player) {
+        if (player != null) {
+            var playerAbilities = player.getAbilities();
+            var playerData = getPlayerData(player.getStringUUID());
+            playerData.setMayFly(playerAbilities.mayfly);
+            playerData.setIsFlying(playerAbilities.flying);
             setDirty();
         }
     }

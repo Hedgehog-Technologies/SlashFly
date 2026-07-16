@@ -23,13 +23,6 @@ public class NeoForgeSlashFly {
      * @param eventBus - NeoForge EventBus
      */
     public NeoForgeSlashFly(IEventBus eventBus) {
-
-        // This method is invoked by the NeoForge mod loader when it is ready
-        // to load your mod. You can access NeoForge and Common code in this
-        // project.
-
-        // Use NeoForge to bootstrap the Common mod.
-//        Constants.LOG.info("Hello NeoForge world!");
         CommonClass.init();
 
         NeoForge.EVENT_BUS.addListener(NeoForgeSlashFly::onCommandRegister);
@@ -61,17 +54,6 @@ public class NeoForgeSlashFly {
     }
 
     private static void onPlayerBreakSpeed(PlayerEvent.BreakSpeed event) {
-        var player = event.getEntity();
-        var abilities = player.getAbilities();
-        var onGround = player.onGround();
-        var inWater = player.isEyeInFluid(FluidTags.WATER);
-
-        if (!onGround && abilities.flying) {
-            event.setNewSpeed(event.getNewSpeed() * 5.0f);
-        }
-
-        if (inWater && abilities.flying) {
-            event.setNewSpeed(event.getNewSpeed() / (float) Objects.requireNonNull(player.getAttribute(Attributes.SUBMERGED_MINING_SPEED)).getValue());
-        }
+        event.setNewSpeed(Fly.adjustBlockBreakSpeedForFlight(event.getEntity(), event.getNewSpeed()));
     }
 }

@@ -58,17 +58,6 @@ public class ForgeSlashFly {
     }
 
     private static void playerBreakSpeedEventHandler(PlayerEvent.BreakSpeed event) {
-        Player player = event.getEntity();
-        var abilities = player.getAbilities();
-        var onGround = player.onGround();
-        var inWater = player.isEyeInFluid(FluidTags.WATER);
-
-        if (!onGround && abilities.flying) {
-            event.setNewSpeed(event.getNewSpeed() * 5.0f);
-        }
-
-        if (inWater && abilities.flying) {
-            event.setNewSpeed(event.getNewSpeed() / (float) Objects.requireNonNull(player.getAttribute(Attributes.SUBMERGED_MINING_SPEED)).getValue());
-        }
+        event.setNewSpeed(Fly.adjustBlockBreakSpeedForFlight(event.getEntity(), event.getNewSpeed()));
     }
 }
